@@ -10,7 +10,7 @@
 #             type applications, files and databases.
 #
 #             Provides support for moving data between .xls (Excel/OpenOffice)
-#             Spreedsheets via Ruby and AR, enabling direct import/export of 
+#             Spreedsheets via Ruby and AR, enabling direct import/export of
 #             ActiveRecord models with all their associations from database.
 #
 #             Provides support for moving data between csv files and AR, enabling direct
@@ -24,7 +24,7 @@ require 'rake'
 
 lib = File.expand_path('../lib/', __FILE__)
 
-$:.unshift '.' 
+$:.unshift '.'
 $:.unshift lib unless $:.include?(lib)
 
 require 'datashift'
@@ -41,10 +41,10 @@ Jeweler::Tasks.new do |gem|
   gem.authors = ["Thomas Statter"]
   # dependencies defined in Gemfile
   gem.files.exclude ['sandbox']
-  
+
   gem.add_dependency 'spreadsheet'
   gem.add_dependency 'rubyzip'
-  
+
 end
 Jeweler::RubygemsDotOrgTasks.new
 
@@ -84,11 +84,11 @@ task :build, :version do |t, args|
 
   version = DataShift.gem_version
   puts "Installing version #{version}"
-  
+
   gem = "#{DataShift.gem_name}-#{version}.gem"
   cmd = "jruby -S gem install --no-ri --no-rdoc #{gem}"
   system(cmd)
 end
-  
+
 # Long parameter lists so ensure rake -T produces nice wide output
 ENV['RAKE_COLUMNS'] = '180'

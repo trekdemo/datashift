@@ -25,7 +25,7 @@
 
 
 # Details::   Active Record Loader
-# 
+#
 # To pull DataShift commands into your main application :
 #
 #     require 'datashift'
@@ -39,7 +39,7 @@ module DataShift
 
   if(Guards::jruby?)
     require 'java'
-      
+
     class Object
       def add_to_classpath(path)
         $CLASSPATH << File.join( DataShift.root_path, 'lib', path.gsub("\\", "/") )
@@ -70,9 +70,9 @@ module DataShift
   def self.library_path
     File.expand_path("#{File.dirname(__FILE__)}/../lib")
   end
-  
+
   def self.require_libraries
-    
+
     loader_libs = %w{ lib  }
 
     # Base search paths - these will be searched recursively
@@ -90,7 +90,7 @@ module DataShift
         end
       end
     end
-    
+
     require_libs = %w{ datashift loaders helpers }
 
     require_libs.each do |base|
@@ -112,18 +112,18 @@ module DataShift
     Dir["#{base}/*.rake"].sort.each { |ext| load ext }
   end
 
-  
+
   # Load all the datashift Thor commands and make them available throughout app
 
   def self.load_commands()
     base = File.join(library_path, 'thor', '**')
-    
+
     Dir["#{base}/*.thor"].each do |f|
       next unless File.file?(f)
       Thor::Util.load_thorfile(f)
     end
   end
-  
+
 end
 
 DataShift::require_libraries

@@ -25,7 +25,7 @@
 
 
 # Details::   Active Record Loader
-# 
+#
 # To pull DataShift commands into your main application :
 #
 #     require 'datashift'
@@ -33,7 +33,7 @@
 #     DataShift::load_commands
 #
 require 'rbconfig'
-  
+
 module DataShift
 
   module Guards
@@ -41,6 +41,7 @@ module DataShift
     def self.jruby?
       return RUBY_PLATFORM == "java"
     end
+
     def self.mac?
       RbConfig::CONFIG['target_os'] =~ /darwin/i
     end

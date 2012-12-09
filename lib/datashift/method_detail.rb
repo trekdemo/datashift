@@ -16,67 +16,61 @@ require 'populator'
 require 'set'
 
 module DataShift
-
   class MethodDetail
-
     include DataShift::Logging
-    
     include DataShift::Populator
     extend DataShift::Populator
-    
-    def self.supported_types_enum
-      @type_enum ||= Set[:assignment, :belongs_to, :has_one, :has_many]
-      @type_enum
+
+    class << self
+      def supported_types_enum
+        @type_enum ||= Set[:assignment, :belongs_to, :has_one, :has_many]
+      end
+
+      def association_types_enum
+        @assoc_type_enum ||= Set[:belongs_to, :has_one, :has_many]
+      end
     end
 
-    def self.association_types_enum
-      @assoc_type_enum ||= Set[:belongs_to, :has_one, :has_many]
-      @assoc_type_enum
-    end
-    
     # When looking up an association, try each of these in turn till a match
     #  i.e find_by_name .. find_by_title and so on, lastly try the raw id
     @@insistent_find_by_list ||= [:name, :title, :id]
 
     # Name is the raw, client supplied name
-    attr_accessor :name
-    attr_accessor :column_index
-  
+    attr_accessor :name, :column_index,
+                  # TODO make it a list/primary keys
+                  :find_by_operator, :find_by_value
+
     # The rel col type from the DB
-    attr_reader :col_type, :current_value
+    attr_reader :col_type, :current_value,
+                :operator, :operator_type
 
-    attr_reader :operator, :operator_type
 
-    # TODO make it a list/primary keys
-    attr_accessor :find_by_operator, :find_by_value
-        
     # Store the raw (client supplied) name against the active record  klass(model).
     # Operator is the associated method call on klass,
     # so client name maybe Price but true operator is price
-    # 
+    #
     # col_types can typically be derived from klass.columns - set of ActiveRecord::ConnectionAdapters::Column
-
+    #
     def initialize(client_name, klass, operator, type, col_types = {}, find_by_operator = nil, find_by_value = nil )
-      @klass, @name = klass, client_name
-      @find_by_operator = find_by_operator
-      @find_by_value = find_by_value
-
-      if( MethodDetail::supported_types_enum.member?(type.to_sym) )
-        @operator_type = type.to_sym
-      else
+      if MethodDetail.supported_types_enum.member?(type.to_sym)
         raise "Bad operator Type #{type} passed to Method Detail"
       end
 
+      @klass = klass
+      @name = client_name
+      @find_by_operator = find_by_operator
+      @find_by_value = find_by_value
       @operator = operator
-    
+      @operator_type = type.to_sym
+
       # Note : Not all assignments will currently have a column type, for example
       # those that are derived from a delegate_belongs_to
-      if(col_types.empty?)
-        @col_type = klass.columns.find{ |col| col.name == operator }
+      if col_types.empty?
+        @col_type = klass.columns.find {|col| col.name == operator }
       else
         @col_type = col_types[operator]
       end
-      
+
       @column_index = -1
     end
 
@@ -99,7 +93,7 @@ module DataShift
           Kernel.const_get(operator.classify)
           operator.classify
         rescue; ""; end
-  
+
       elsif(@col_type)
         @col_type.type.to_s.classify
       else
@@ -116,20 +110,20 @@ module DataShift
     end
 
     def assign(record, value )
-      
+
       @current_value = value
 
       # logger.info("WARNING nil value supplied for Column [#{@name}]") if(@current_value.nil?)
-    
+
       if( operator_for(:belongs_to) )
-      
+
         #puts "DEBUG : BELONGS_TO : #{@name} : #{operator} - Lookup #{@current_value} in DB"
         insistent_belongs_to(record, @current_value)
 
       elsif( operator_for(:has_many) )
-        
+
         #puts "DEBUG : VALUE TYPE [#{value.class.name.include?(operator.classify)}] [#{ModelMapper.class_from_string(value.class.name)}]" unless(value.is_a?(Array))
-     
+
         # The include? check is best I can come up with right now .. to handle module/namespaces
         # TODO - can we determine the real class type of an association
         # e.g given a association taxons, which operator.classify gives us Taxon, but actually it's Spree::Taxon
@@ -226,12 +220,12 @@ module DataShift
     def insistent_assignment( record, value )
       Populator::insistent_assignment( record, value, operator)
     end
-    
+
     private
     # Return the operator's expected class, if can be derived, else nil
     def get_operator_class()
-      if(operator_for(:has_many) || operator_for(:belongs_to) || operator_for(:has_one))  
-        begin     
+      if(operator_for(:has_many) || operator_for(:belongs_to) || operator_for(:has_one))
+        begin
           Kernel.const_get(operator.classify)
         rescue; nil; end
 
@@ -243,7 +237,7 @@ module DataShift
         nil
       end
     end
-    
+
   end
-  
+
 end

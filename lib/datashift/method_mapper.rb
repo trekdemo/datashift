@@ -14,34 +14,33 @@
 #             and return details of real has_many association 'product_properties'.
 #
 #             This real association can then be used to send spreadsheet row data to the AR object.
-#             
+#
 require 'method_detail'
 require 'method_dictionary'
 
 module DataShift
-
   class MethodMapper
-
     include DataShift::Logging
-    
+
     attr_accessor :method_details, :missing_methods
-  
-    
-    # As well as just the column name, support embedding find operators for that column
-    # in the heading .. i.e Column header => 'BlogPosts:user_id' 
-    # ... association has many BlogPosts selected via find_by_user_id
-    # 
-    # in the heading .. i.e Column header => 'BlogPosts:user_name:John Smith' 
-    # ... association has many BlogPosts selected via find_by_user_name("John Smith")
-    #
-    def self.column_delim
-      @column_delim ||= ':'
-      @column_delim
+
+    class << self
+      # As well as just the column name, support embedding find operators for that column
+      # in the heading .. i.e Column header => 'BlogPosts:user_id'
+      # ... association has many BlogPosts selected via find_by_user_id
+      #
+      # in the heading .. i.e Column header => 'BlogPosts:user_name:John Smith'
+      # ... association has many BlogPosts selected via find_by_user_name("John Smith")
+      #
+      def column_delim
+        @column_delim ||= ':'
+      end
+
+      def set_column_delim(delimiter)
+        @column_delim = delimiter
+      end
     end
 
-    def self.set_column_delim(x)  @column_delim = x; end
-    
-  
     def initialize
       @method_details = []
     end
@@ -49,74 +48,70 @@ module DataShift
     # Build complete picture of the methods whose names listed in columns
     # Handles method names as defined by a user, from spreadsheets or file headers where the names
     # specified may not be exactly as required e.g handles capitalisation, white space, _ etc
-    # 
+    #
     # The header can also contain the fields to use in lookups, separated with MethodMapper::column_delim
-    # 
+    #
     #   product:name or project:title  or user:email
-    # 
+    #
     # Returns: Array of matching method_details, including nils for non matched items
-    # 
+    #
     # N.B Columns that could not be mapped are left in the array as NIL
-    # 
+    #
     # This is to support clients that need to map via the index on @method_details
-    # 
+    #
     # Other callers can simply call compact on the results if the index not important.
-    # 
+    #
     # The Methoddetails instance will contain a pointer to the column index from which it was mapped.
-    # 
-    # 
+    #
+    #
     # Options:
-    # 
+    #
     #   [:force_inclusion]  : List of columns that do not map to any operator but should be includeed in processing.
-    #                     
+    #
     #       This provides the opportunity for loaders to provide specific methods to handle these fields
     #       when no direct operator is available on the modle or it's associations
-    #       
+    #
     #   [:include_all]      : Include all headers in processing - takes precedence of :force_inclusion
     #
     def map_inbound_headers_to_methods( klass, columns, options = {} )
-      
       # If klass not in MethodDictionary yet, add to dictionary all possible operators on klass
       # which can be used to map headers and populate an object of type klass
+      require 'debugger'; debugger
       unless(MethodDictionary::for?(klass))
         DataShift::MethodDictionary.find_operators(klass)
-        
         DataShift::MethodDictionary.build_method_details(klass)
-      end 
-      
+      end
+
       forced = [*options[:force_inclusion]].compact.collect { |f| f.to_s.downcase }
-      
+
       @method_details, @missing_methods = [], []
-    
+
       columns.each_with_index do |col_data, col_index|
-        
         raw_col_data = col_data.to_s
-        
+
         if(raw_col_data.nil? or raw_col_data.empty?)
-          logger.warn("Column list contains empty or null column at index #{col_index}") 
+          logger.warn("Column list contains empty or null column at index #{col_index}")
           @method_details << nil
           next
         end
-        
-        raw_col_name, lookup = raw_col_data.split(MethodMapper::column_delim) 
-       
+
+        raw_col_name, lookup = raw_col_data.split(MethodMapper::column_delim)
         md = MethodDictionary::find_method_detail( klass, raw_col_name )
-        
+
         # TODO be nice if we could check that the assoc on klass responds to the specified
         # lookup key now (nice n early)
         # active_record_helper = "find_by_#{lookup}"
-        if(md.nil? && (options[:include_all] || forced.include?(raw_col_name.downcase)) )
+        if md.nil? && (options[:include_all] || forced.include?(raw_col_name.downcase))
           md = MethodDictionary::add(klass, raw_col_name)
         end
-        
+
         if(md)
-          
           md.name = raw_col_name
           md.column_index = col_index
-          
+
           if(lookup)
-            find_by, find_value = lookup.split(MethodMapper::column_delim) 
-            md.find_by_value    = find_value 
+            find_by, find_value = lookup.split(MethodMapper::column_delim)
+            md.find_by_value    = find_value
             md.find_by_operator = find_by # TODO and klass.x.respond_to?(active_record_helper))
             #puts "DEBUG: Method Detail #{md.name};#{md.operator} : find_by_operator #{md.find_by_operator}"
           end
@@ -124,28 +119,28 @@ module DataShift
           # TODO populate unmapped with a real MethodDetail that is 'null' and create is_nil
           @missing_methods << raw_col_name
         end
-        
+
         @method_details << md
-        
+
       end
-     
+
       @method_details
     end
 
-    
+
     # TODO populate unmapped with a real MethodDetail that is 'null' and create is_nil
-    # 
+    #
     # The raw client supplied names
-    def method_names()
+    def method_names
       @method_details.compact.collect( &:name )
     end
 
     # The true operator names discovered from model
-    def operator_names()
+    def operator_names
       @method_details.compact.collect( &:operator )
     end
 
-    
+
     # Returns true if discovered methods contain every operator in mandatory_list
     def contains_mandatory?( mandatory_list )
       a = [*mandatory_list].collect { |f| f.downcase }
