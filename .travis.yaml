@@ -1,0 +1,10 @@
+language: ruby
+rvm:
+  - 1.9.3
+  - ree
+  - jruby-18mode
+gemfile:
+  - Gemfile
+notifications:
+  recipients:
+    - gergo.sulymosi@gmail.com
