@@ -78,3 +78,4 @@ pkg
 /nbproject/private/
 MissingAttachmentRecords
 private
+spec/fixtures/db/datashift_test_models_db.sqlite
