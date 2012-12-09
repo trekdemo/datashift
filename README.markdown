@@ -1,4 +1,6 @@
-##  DataShift 
+[![Build Status](https://secure.travis-ci.org/trekdemo/datashift.png?branch=master)](https://travis-ci.org/trekdemo/datashift)
+
+##  DataShift
 
 Provides tools to shift data between Excel/CSV files and Rails projects and Ruby applications
 
@@ -6,7 +8,7 @@ Import and export models fully with all associations.
 
 Comprehensive Wiki here : **https://github.com/autotelik/datashift/wiki**
 
-Specific command line tools and full Product loading for Spree E-Commerce 
+Specific command line tools and full Product loading for Spree E-Commerce
 now seperate gem at [datashift_spree](https://github.com/autotelik/datashift_spree "Datashift Spree")
 
 ### Features
@@ -19,7 +21,7 @@ Create, parse and use Excel/OpenOffice (.xls) documents dynamically from Ruby (J
 
 Generate a sample template with headers only.
 
-Export template and populate with model data 
+Export template and populate with model data
 
 Bulk import tools for Paperclip attachments.
 
@@ -28,7 +30,7 @@ as complex association lookups.
 
 High level rake and thor command line tasks for import/export provided.
 
-Specific loaders and command line tasks provided out the box for **Spree E-Commerce**, 
+Specific loaders and command line tasks provided out the box for **Spree E-Commerce**,
 enabling import/export of Product data including creating Variants with different
  count on hands and all associations including Properties/Taxons/OptionTypes and Images.
 
@@ -54,7 +56,7 @@ To use the Thor command line applications, pull in the tasks.
 
 Generally the easiest way is to, create a high level .thor file in your Rails root directory
 
-    e.g mysite.thor  
+    e.g mysite.thor
 
 Edit the file and add the following to pull in the thor commands :
 
@@ -79,7 +81,7 @@ To get usage information use thor help <command>, for example
 
 To use Excel OLE and MS Excel are NOT required.
 
-Features a common Excel interface over both our own wrapper around Apache POI (JRuby) and spreadsheet gem (all main Rubies) 
+Features a common Excel interface over both our own wrapper around Apache POI (JRuby) and spreadsheet gem (all main Rubies)
 
 This means you can switch seamlessly between the two libraries, and if required drop down to make use of advanced
 features in the brilliant Apache POI libraries for anyone using JRuby.
@@ -99,19 +101,19 @@ Provides high level tasks for importing data via ActiveRecord models into a DB,
 
 Please use thor list and thor help <xxx> to get latest command lines
 
-    bundle exec thor datashift:import:csv model=BlogPost input=BlogPostImport.csv verbose=true 
+    bundle exec thor datashift:import:csv model=BlogPost input=BlogPostImport.csv verbose=true
 
 
 Provides high level  tasks for exporting data to various sources, currently .xls files (Excel/Open Office)
 
-    bundle exec thor datashift:export:excel model=BlogPost result=BlogExport.xls 
+    bundle exec thor datashift:export:excel model=BlogPost result=BlogExport.xls
 
 
 The library can be easily extended with Loaders to deal with non trivial cases,
  for example when multiple lookups required to find right association.
 
 Spree loaders are an example, these illustrate over riding processing for specific columns with
-complicated lookup requirements. Spree is the prime Open Source e-commerce project for Rails, 
+complicated lookup requirements. Spree is the prime Open Source e-commerce project for Rails,
 and the specific loaders and tasks support loading Spree Products, and associated data such as Variants,
 OptionTypes, Properties and Images.
 
@@ -126,13 +128,13 @@ This data can be exported directly to CSV or Excel/OpenOffice spreadsheets.
 
 
 ## Example Spreadsheets
-    
+
   A number of example Spreadsheets with headers and comments, can be found in the spec/fixtures directory.
 
   Extensive Spree samples - including .xls and csv versions for simple Products or complex Products with multiple
   taxons, variants properties etc - can be found in the spec/fixtures/spree subdirectory.
 
-  Column headings contain comments with full descriptions and instructions on syntax. 
+  Column headings contain comments with full descriptions and instructions on syntax.
 
 
 ## Features
@@ -140,7 +142,7 @@ This data can be exported directly to CSV or Excel/OpenOffice spreadsheets.
 - *Associations*
 
   Can import/export 'belongs_to, 'has_many' and 'has_one' associations, including assignment of multiple objects
-  via either multiple columns, or via a DSL for creating multiple entries in a single (column). 
+  via either multiple columns, or via a DSL for creating multiple entries in a single (column).
 
   The DSL can also be used to define which fields to lookup associations, and assign values to other fields.
 
@@ -157,7 +159,7 @@ This data can be exported directly to CSV or Excel/OpenOffice spreadsheets.
   Our proxy for Excel allows seamless switching between 'spreadsheet' gem and datashift's own JRuby wrapper over Apache POI.
 
   When using JRuby, Apache POI may offer advanced facilities not found in standard Ruby spreadsheet gem
-  
+
   The required POI jars are already included.
 
 - *Direct Excel export*
@@ -166,7 +168,7 @@ This data can be exported directly to CSV or Excel/OpenOffice spreadsheets.
   easier and quicker to migrate your client's data into a Rails/ActiveRecord project.
 
   No need to save to CSV or map to YAML.
-  
+
 - *Semi-Smart Name Lookup*
 
   Includes helper classes that find and store details of all possible associations on an AR class.
@@ -234,11 +236,11 @@ During loading, a call to find_all_by_reference will be made, picking up the 2 c
 
   - Does not currently ensure mandatory columns (for valid?) processed first.
 
-  - Look at implementing import/export API using something like https://github.com/ianwhite/orm_adapter 
+  - Look at implementing import/export API using something like https://github.com/ianwhite/orm_adapter
     rather than active record, so we can support additional ORMs
 
   - Create separate Spree extension to support import/export via the admin gui
-    
+
 ## License
 
 Copyright:: (c) Autotelik Media Ltd 2011
