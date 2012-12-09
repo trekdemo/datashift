@@ -1,5 +1,7 @@
 [![Build Status](https://secure.travis-ci.org/trekdemo/datashift.png?branch=master)](https://travis-ci.org/trekdemo/datashift)
 
+[![CodeClimate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/trekdemo/datashift)
+
 ##  DataShift
 
 Provides tools to shift data between Excel/CSV files and Rails projects and Ruby applications
